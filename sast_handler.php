@@ -15,10 +15,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['code_file'])) {
     if (empty($suspicious)) {
         echo "<div class='alert alert-success'>✅ Code của bạn an toàn! Không phát hiện Regex nguy hiểm.</div>";
     } else {
-        echo "<div class='alert alert-warning'>⚠️ Phát hiện " . count($suspicious) . " dòng code nghi vấn. Đang gửi AI phân tích...</div>";
-        
-        // Lớp 2: Gọi AI
-        $result = callGroqAI($code, $suspicious);
+        echo "<div class='alert alert-warning'>⚠️ Phát hiện " . count($suspicious) . " dòng code nghi vấn. Đang phân loại kết quả bằng Regex...</div>";
+
+        // Lớp 1 (tiếp): Phân loại dòng nghi vấn thành lỗ hổng cụ thể (Sprint 3 chưa dùng AI)
+        $result = classifySuspicious($suspicious);
 
         // --- LƯU VÀO DATABASE ---
         try {
@@ -26,14 +26,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['code_file'])) {
             if (!empty($result['has_vulnerability']) && isset($result['vulnerabilities'])) {
                 $vuln_count = count($result['vulnerabilities']);
             }
-            
+
             // Chèn vào bảng scan_history (sử dụng đúng các cột trong ảnh phpMyAdmin của bạn)
             $stmt = $pdo->prepare("INSERT INTO scan_history (scan_type, target, vuln_count, details) VALUES (?, ?, ?, ?)");
             $stmt->execute([
-                'SAST', 
-                $_FILES['code_file']['name'], 
-                $vuln_count, 
-                json_encode($result) 
+                'SAST',
+                $_FILES['code_file']['name'],
+                $vuln_count,
+                json_encode($result)
             ]);
         } catch (Exception $e) {
             echo "<div class='alert alert-danger'>Lỗi lưu DB: " . $e->getMessage() . "</div>";
@@ -47,7 +47,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['code_file'])) {
                 echo "<div class='card-body'>";
                 echo "<p><strong>Vị trí:</strong> Dòng " . htmlspecialchars($vuln['line']) . "</p>";
                 echo "<p><strong>Giải thích:</strong> " . htmlspecialchars($vuln['explain']) . "</p>";
-                
+
                 echo "<h6 class='mt-4 text-success'>✅ Giải pháp (Code an toàn):</h6>";
                 echo "<div class='position-relative'>";
                 echo "<pre class='bg-dark text-light p-3 rounded'><code id='code-".md5($vuln['fixed_code'])."'>" . htmlspecialchars($vuln['fixed_code']) . "</code></pre>";
@@ -56,7 +56,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['code_file'])) {
                 echo "</div></div>";
             }
         } else {
-            echo "<div class='alert alert-success'>✅ AI kết luận: Code không có lỗ hổng nghiêm trọng.</div>";
+            echo "<div class='alert alert-success'>✅ Regex kết luận: Code không có lỗ hổng nghiêm trọng.</div>";
         }
     }
     echo "<a href='index.php' class='btn btn-primary mt-3'>Quay lại Trang chủ</a>";

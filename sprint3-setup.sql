@@ -1,0 +1,10 @@
+CREATE DATABASE IF NOT EXISTS ai_security_tool CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE ai_security_tool;
+CREATE TABLE IF NOT EXISTS scan_history (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  scan_type VARCHAR(10) NOT NULL,
+  target VARCHAR(255) NOT NULL,
+  vuln_count INT NOT NULL DEFAULT 0,
+  details TEXT,
+  scan_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
