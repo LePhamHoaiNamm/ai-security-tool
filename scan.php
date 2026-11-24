@@ -41,10 +41,10 @@ require 'db.php';
                 </form>
             </div>
 
-            <!-- Form DAST -->
+            <!-- Form DAST (Chỉ có URL) -->
             <div id="form-dast" style="display: none;">
                 <form id="dast-form">
-                    <div class="mb-4 p-3 bg-light rounded">
+                    <div class="mb-3 p-3 bg-light rounded border">
                         <label class="form-label fw-bold text-muted">Nhập URL cần quét (VD: http://localhost/dvwa/...):</label>
                         <input class="form-control form-control-lg" type="url" id="target_url" name="target_url" placeholder="http://" required>
                     </div>
@@ -52,6 +52,7 @@ require 'db.php';
                 </form>
             </div>
             
+            <!-- Nơi hiển thị kết quả -->
             <div id="result-area" class="mt-4"></div>
         </div>
     </div>
@@ -59,6 +60,9 @@ require 'db.php';
 
 <script>
     function switchTab(type) {
+        // Xóa sạch kết quả cũ mỗi khi chuyển tab
+        document.getElementById('result-area').innerHTML = '';
+
         if(type === 'sast') {
             document.getElementById('form-sast').style.display = 'block';
             document.getElementById('form-dast').style.display = 'none';
@@ -76,6 +80,7 @@ require 'db.php';
         e.preventDefault();
         let resultArea = document.getElementById('result-area');
         resultArea.innerHTML = '<div class="text-center py-4"><div class="spinner-border text-primary"></div><p class="mt-2 text-muted">AI đang phân tích mã nguồn...</p></div>';
+        
         fetch('sast_handler.php', { method: 'POST', body: new FormData(this) })
         .then(res => res.text()).then(html => { resultArea.innerHTML = html; });
     });
@@ -84,6 +89,7 @@ require 'db.php';
         e.preventDefault();
         let resultArea = document.getElementById('result-area');
         resultArea.innerHTML = '<div class="text-center py-4"><div class="spinner-border text-danger"></div><p class="mt-2 text-muted">Đang gửi Payload tấn công...</p></div>';
+        
         fetch('dast_handler.php', { method: 'POST', body: new FormData(this) })
         .then(res => res.text()).then(html => { resultArea.innerHTML = html; });
     });
