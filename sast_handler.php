@@ -137,7 +137,6 @@ function fallbackCopy(text, done, fail) {
 </script>";
         } else {
             echo "<div class='alert alert-success'>✅ AI kết luận: Code không có lỗ hổng nghiêm trọng.</div>";
-=======
             // Nếu AI trả về lỗi
             if (isset($result['error'])) {
                 echo "<div class='alert alert-danger'>❌ Lỗi từ AI: " . htmlspecialchars($result['error']) . "</div>";
