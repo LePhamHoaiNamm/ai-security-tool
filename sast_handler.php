@@ -1,14 +1,4 @@
 <?php
-// Sprint 6 — SAST only (phan DAST de Nam lam, file nay khong dung DAST).
-// Luong: Regex (lop 1) -> Groq gpt-oss-120b (lop 2, analyzeSASTWithAI)
-// -> JSON chuan {owasp, cwe, severity, explain, recommendation, fixed_code}
-// Neu Groq loi (chua co key / het quota / sai model) thi roi ve Regex
-// (classifySuspicious, da them CWE) + hien the vang, khong bao xanh sai.
-//
-// Sprint 6 — "Xu ly ket qua & Trai nghiem Vibecoder" (issue #6):
-// - The do: vung LOI (ten lo hong, OWASP, CWE, muc do, giai thich, khuyen nghi)
-// - The xanh: vung GIAI PHAP (code an toan) + nut "Copy Code An Toan"
-// - Badge mau theo muc do: High = do, Medium = vang, Low = xanh duong
 require 'analyzer.php';
 require 'db.php';
 
@@ -35,8 +25,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['code_file'])) {
         echo "<div class='alert alert-success'>✅ Code của bạn an toàn! Không phát hiện Regex nguy hiểm.</div>";
     } else {
         echo "<div class='alert alert-warning'>⚠️ Phát hiện " . count($suspicious) . " dòng code nghi vấn. Đang gửi AI phân tích...</div>";
-
-<<<<<<< Updated upstream
         // Lop 2 (Sprint 5): Goi Groq AI tren du lieu SAST
         $result = analyzeSASTWithAI($code, $suspicious);
         $ai_failed = !empty($result['ai_error']);
@@ -47,11 +35,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['code_file'])) {
             // khong boc them lop nua.
             $result = classifySuspicious($suspicious);
         }
-=======
         // --- LỚP 2: GỌI AI PHÂN TÍCH ---
         // Sửa lỗi: Gọi đúng tên hàm callGroqAI với 2 tham số
         $result = callGroqAI($code, $suspicious);
->>>>>>> Stashed changes
 
         // --- LUU VAO DATABASE ---
         try {
@@ -59,11 +45,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['code_file'])) {
             if (!empty($result['has_vulnerability']) && isset($result['vulnerabilities'])) {
                 $vuln_count = count($result['vulnerabilities']);
             }
-<<<<<<< Updated upstream
-=======
 
             // Chèn vào bảng scan_history
->>>>>>> Stashed changes
             $stmt = $pdo->prepare("INSERT INTO scan_history (scan_type, target, vuln_count, details) VALUES (?, ?, ?, ?)");
             $stmt->execute([
                 'SAST',
@@ -99,7 +82,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['code_file'])) {
                 echo "<p><strong>Vị trí:</strong> Dòng " . htmlspecialchars($vuln['line']) . "</p>";
                 echo "<p><strong>CWE:</strong> " . htmlspecialchars($vuln['cwe'] ?? 'N/A') . " &nbsp;|&nbsp; <strong>Mức độ:</strong> " . severityBadge($vuln['severity'] ?? '') . "</p>";
                 echo "<p><strong>Giải thích:</strong> " . htmlspecialchars($vuln['explain']) . "</p>";
-<<<<<<< Updated upstream
                 if (!empty($vuln['recommendation'])) {
                     echo "<p><strong>Khuyến nghị:</strong> " . htmlspecialchars($vuln['recommendation']) . "</p>";
                 }
@@ -113,8 +95,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['code_file'])) {
                     echo "<pre class='bg-dark text-light p-3 rounded mb-0'><code id='code-" . $i . "'>" . htmlspecialchars($vuln['fixed_code']) . "</code></pre>";
                     echo "</div>";
                 }
-=======
-
                 echo "<h6 class='mt-4 text-success'>✅ Giải pháp (Code an toàn):</h6>";
                 echo "<div class='position-relative'>";
                 // Tạo ID ngẫu nhiên cho thẻ code để nút Copy hoạt động
@@ -122,7 +102,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['code_file'])) {
                 echo "<pre class='bg-dark text-light p-3 rounded'><code id='$code_id'>" . htmlspecialchars($vuln['fixed_code']) . "</code></pre>";
                 echo "<button class='btn btn-sm btn-success position-absolute top-0 end-0 m-2' onclick=\"navigator.clipboard.writeText(document.getElementById('$code_id').innerText); this.innerText='✅ Đã Copy!'; setTimeout(() => this.innerText='📋 Copy Code', 2000);\">📋 Copy Code</button>";
                 echo "</div>";
->>>>>>> Stashed changes
                 echo "</div></div>";
             }
             // JS copy: dung navigator.clipboard, co fallback cho trinh duyet cu / khong phai HTTPS
@@ -157,7 +136,6 @@ function fallbackCopy(text, done, fail) {
 }
 </script>";
         } else {
-<<<<<<< Updated upstream
             echo "<div class='alert alert-success'>✅ AI kết luận: Code không có lỗ hổng nghiêm trọng.</div>";
 =======
             // Nếu AI trả về lỗi
@@ -166,7 +144,7 @@ function fallbackCopy(text, done, fail) {
             } else {
                 echo "<div class='alert alert-success'>✅ AI kết luận: Code không có lỗ hổng nghiêm trọng.</div>";
             }
->>>>>>> Stashed changes
+
         }
     }
     echo "<a href='index.php' class='btn btn-primary mt-3 mb-5'>Quay lại Trang chủ</a>";
